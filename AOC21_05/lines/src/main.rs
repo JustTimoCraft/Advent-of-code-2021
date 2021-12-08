@@ -69,18 +69,20 @@ fn main() {
         linedata.push(data);
     }
 
+    println!("\n---------- Part 1 ----------\n");
     // Add all straight lines to a list
     // Homophobia :(
     let mut the_straights: Vec<Line> = Vec::new();
-    for data in linedata {
+    for data in &linedata {
         if data[0] == data[2] || data[1] == data[3] {
-            the_straights.push(Line::new(data));
+            the_straights.push(Line::new(*data));
         }
     }
+    println!("Considering {} straight lines...", the_straights.len());
 
     let mut grid: [[u16; 1024]; 1024] = [[0; 1024]; 1024];
 
-    for line in the_straights {
+    for line in &the_straights {
         let small_x = cmp::min(line.x1, line.x2);
         let large_x = cmp::max(line.x1, line.x2);
         let small_y = cmp::min(line.y1, line.y2);
@@ -92,14 +94,67 @@ fn main() {
         }
     }
 
-    // Stack overflow occurs here somehow?????
+    // Count the number of intersections where 2 or more
+    // lines cross
     let mut level_count: u128 = 0;
-    for line in grid {
-        for field in line {
-            if field >= 2 {
+    for i in 0..1024 {
+        for j in 0..1024 {
+            if grid[i][j] >= 2 {
                 level_count += 1;
             }
         }
     }
-    println!("Values above 1: {}", level_count);
+    println!("Intersections with at least 2 lines: {}", level_count);
+
+    println!("\n---------- Part 2 ----------\n");
+    let mut diagonal_lines: Vec<Line> = Vec::new();
+    for data in &linedata {
+        // If were not dealing with a straight line
+        if !(data[0] == data[2] || data[1] == data[3]) {
+            // Check if the line is a perfect diagonal
+            if (data[0] as i16 - data[2] as i16).abs() == (data[1] as i16 - data[3] as i16).abs() {
+                diagonal_lines.push(Line::new(*data));
+            } else {
+                println!("Found an imperfect diagonal line!");
+            }
+        }
+    }
+    println!(
+        "Also considering {} diagonal lines for a total of {} lines",
+        diagonal_lines.len(),
+        diagonal_lines.len() + &the_straights.len()
+    );
+
+    for line in diagonal_lines {
+        let x_multiplier: i16;
+        let y_multiplier: i16;
+        if line.x1 < line.x2 {
+            x_multiplier = 1;
+        } else {
+            x_multiplier = -1;
+        }
+        if line.y1 < line.y2 {
+            y_multiplier = 1;
+        } else {
+            y_multiplier = -1;
+        }
+
+        let length = (line.x1 as i16 - line.x2 as i16).abs(); // end_y - start_y should give the same value
+        for i in 0..=length {
+            grid[(line.x1 as i16 + i * x_multiplier) as usize]
+                [(line.y1 as i16 + i * y_multiplier) as usize] += 1;
+        }
+    }
+
+    // Count the number of intersections where 2 or more
+    // lines cross
+    let mut level_count: u128 = 0;
+    for i in 0..1024 {
+        for j in 0..1024 {
+            if grid[i][j] >= 2 {
+                level_count += 1;
+            }
+        }
+    }
+    println!("Intersections with at least 2 lines: {}", level_count);
 }

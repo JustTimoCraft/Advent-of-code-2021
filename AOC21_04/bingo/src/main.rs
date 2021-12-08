@@ -119,11 +119,6 @@ fn main() {
         // Remove cards that were flagged as candidates for
         // removal in the previous cycle
         for (number, index) in remove_cards.iter().enumerate() {
-            println!(
-                "Removing bingo card after {} cycles: \n{}",
-                cycles,
-                bingo_cards.get(index - number).unwrap()
-            );
             bingo_cards.remove(index - number);
         }
         // Clear the vector after removing the proper bingo cards
@@ -138,7 +133,6 @@ fn main() {
         if cycles >= 5 {
             for (index, card) in bingo_cards.iter_mut().enumerate() {
                 if card.check_for_bingo() {
-                    println!("\nThis card just got bingo!!\n{}", card);
                     remove_cards.push(index);
                 }
             }
